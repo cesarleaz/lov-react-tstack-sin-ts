@@ -16,64 +16,38 @@ import Asset from './routes/assets'
 import { Knowledge } from './routes/knowledge'
 import Canvas from './routes/canvas.$id'
 import Home from './routes'
-function App() {
+
+export default function App() {
   const { theme } = useTheme()
-  // Auto-start ComfyUI on app startup
-  useEffect(() => {
-    const autoStartComfyUI = async () => {
-      try {
-        // Check if ComfyUI is installed
-        const isInstalled = await window.electronAPI?.checkComfyUIInstalled()
-        if (!isInstalled) {
-          console.log('ComfyUI is not installed, skipping auto-start')
-          return
-        }
-        // Start ComfyUI process
-        console.log('Auto-starting ComfyUI...')
-        const result = await window.electronAPI?.startComfyUIProcess()
-        if (result?.success) {
-          console.log('ComfyUI auto-started successfully:', result.message)
-        } else {
-          console.log('Failed to auto-start ComfyUI:', result?.message)
-        }
-      } catch (error) {
-        console.error('Error during ComfyUI auto-start:', error)
-      }
-    }
-    // Only run if electronAPI is available (in Electron environment)
-    if (window.electronAPI) {
-      autoStartComfyUI()
-    }
-  }, [])
+
   return (
     <ThemeProvider defaultTheme={theme} storageKey="vite-ui-theme">
-        <AuthProvider>
-          <ConfigsProvider>
-            <div className="app-container">
-              <Switch>
-                <Route path="/" component={Home} />
-                <Route path="/agent_studio" component={AgentStudio} />
-                <Route path="/assets" component={Asset} />
-                <Route path="/knowledge" component={Knowledge} />
-                <Route path="/canvas/:id" component={Canvas} />
-              </Switch>
+      <AuthProvider>
+        <ConfigsProvider>
+          <div className="app-container">
+            <Switch>
+              <Route path="/" component={Home} />
+              <Route path="/agent_studio" component={AgentStudio} />
+              <Route path="/assets" component={Asset} />
+              <Route path="/knowledge" component={Knowledge} />
+              <Route path="/canvas/:id" component={Canvas} />
+            </Switch>
 
-              {/* Install ComfyUI Dialog */}
-              {/* <InstallComfyUIDialog /> */}
+            {/* Install ComfyUI Dialog */}
+            {/* <InstallComfyUIDialog /> */}
 
-              {/* Update Notification Dialog */}
-              <UpdateNotificationDialog />
+            {/* Update Notification Dialog */}
+            <UpdateNotificationDialog />
 
-              {/* Settings Dialog */}
-              <SettingsDialog />
+            {/* Settings Dialog */}
+            <SettingsDialog />
 
-              {/* Login Dialog */}
-              <LoginDialog />
-            </div>
-          </ConfigsProvider>
-        </AuthProvider>
+            {/* Login Dialog */}
+            <LoginDialog />
+          </div>
+        </ConfigsProvider>
+      </AuthProvider>
       <Toaster position="bottom-center" richColors />
     </ThemeProvider>
   )
 }
-export default App

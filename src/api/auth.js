@@ -10,21 +10,9 @@ export async function startDeviceAuth() {
     throw new Error(`HTTP error! status: ${response.status}`)
   }
   const data = await response.json()
-  // Open browser for user authentication using Electron API
+  // Open browser for user authentication
   const authUrl = `${BASE_API_URL}/auth/device?code=${data.code}`
-  // Check if we're in Electron environment
-  if (window.electronAPI?.openBrowserUrl) {
-    try {
-      await window.electronAPI.openBrowserUrl(authUrl)
-    } catch (error) {
-      console.error('Failed to open browser via Electron:', error)
-      // Fallback to window.open if Electron API fails
-      window.open(authUrl, '_blank')
-    }
-  } else {
-    // Fallback for web environment
-    window.open(authUrl, '_blank')
-  }
+  window.open(authUrl, '_blank')
   return {
     status: data.status,
     code: data.code,

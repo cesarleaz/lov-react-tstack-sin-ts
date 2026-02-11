@@ -48,12 +48,7 @@ export function UserMenu() {
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={() => {
-              const billingUrl = `${BASE_API_URL}/billing`
-              if (window.electronAPI?.openBrowserUrl) {
-                window.electronAPI.openBrowserUrl(billingUrl)
-              } else {
-                window.open(billingUrl, '_blank')
-              }
+              window.open(`${BASE_API_URL}/billing`, '_blank')
             }}
           >
             {t('common:auth.recharge')}
