@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button'
 import { useConfigs } from '@/contexts/configs'
 import { eventBus } from '@/lib/event'
 import { cn, dataURLToFile } from '@/lib/utils'
-import { useMutation } from '@tanstack/react-query'
 import { useDrop } from 'ahooks'
 import { produce } from 'immer'
 import {
@@ -81,26 +80,28 @@ const ChatTextarea = ({
     ),
     [t]
   )
-  const { mutate: uploadImageMutation } = useMutation({
-    mutationFn: (file) => uploadImage(file),
-    onSuccess: (data) => {
-      console.log('🦄uploadImageMutation onSuccess', data)
-      setImages((prev) => [
-        ...prev,
-        {
-          file_id: data.file_id,
-          width: data.width,
-          height: data.height
-        }
-      ])
+  const uploadImageMutation = useCallback(
+    async (file) => {
+      try {
+        const data = await uploadImage(file)
+        console.log('🦄uploadImageMutation onSuccess', data)
+        setImages((prev) => [
+          ...prev,
+          {
+            file_id: data.file_id,
+            width: data.width,
+            height: data.height
+          }
+        ])
+      } catch (error) {
+        console.error('🦄uploadImageMutation onError', error)
+        toast.error('Failed to upload image', {
+          description: <div>{error.toString()}</div>
+        })
+      }
     },
-    onError: (error) => {
-      console.error('🦄uploadImageMutation onError', error)
-      toast.error('Failed to upload image', {
-        description: <div>{error.toString()}</div>
-      })
-    }
-  })
+    [setImages]
+  )
   const handleImagesUpload = useCallback(
     (e) => {
       const files = e.target.files

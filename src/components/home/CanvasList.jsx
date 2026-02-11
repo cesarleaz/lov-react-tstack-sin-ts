@@ -1,21 +1,21 @@
-import { listCanvases } from '@/api/canvas'
 import CanvasCard from '@/components/home/CanvasCard'
-import { useQuery } from '@tanstack/react-query'
 import { useLocation } from 'wouter'
 import { AnimatePresence, motion } from 'motion/react'
-import { memo } from 'react'
+import { memo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import useCanvasesStore from '@/stores/server/canvases'
 
 const CanvasList = () => {
   const { t } = useTranslation()
   const [location, navigate] = useLocation()
   const isHomePage = location === '/'
-  const { data: canvases, refetch } = useQuery({
-    queryKey: ['canvases'],
-    queryFn: listCanvases,
-    enabled: isHomePage, // 每次进入首页时都重新查询
-    refetchOnMount: 'always'
-  })
+  const canvases = useCanvasesStore((state) => state.data)
+  const fetchCanvases = useCanvasesStore((state) => state.fetchCanvases)
+
+  useEffect(() => {
+    if (!isHomePage) return
+    fetchCanvases({ force: true })
+  }, [isHomePage, fetchCanvases])
   const handleCanvasClick = (id) => {
     navigate(`/canvas/${id}`)
   }
@@ -40,7 +40,7 @@ const CanvasList = () => {
               index={index}
               canvas={canvas}
               handleCanvasClick={handleCanvasClick}
-              handleDeleteCanvas={() => refetch()}
+              handleDeleteCanvas={() => fetchCanvases({ force: true })}
             />
           ))}
         </div>

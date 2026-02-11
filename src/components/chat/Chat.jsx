@@ -23,8 +23,8 @@ import { useConfigs } from '@/contexts/configs'
 import 'react-photo-view/dist/react-photo-view.css'
 import { DEFAULT_SYSTEM_PROMPT } from '@/constants'
 import { useAuth } from '@/contexts/AuthContext'
-import { useQueryClient } from '@tanstack/react-query'
 import { MixedContentImages, MixedContentText } from './Message/MixedContent'
+import useBalanceStore from '@/stores/server/balance'
 const ChatInterface = ({
   canvasId,
   sessionList,
@@ -36,7 +36,8 @@ const ChatInterface = ({
   const { initCanvas, setInitCanvas } = useConfigs()
   const { authStatus } = useAuth()
   const [showShareDialog, setShowShareDialog] = useState(false)
-  const queryClient = useQueryClient()
+  const invalidateBalance = useBalanceStore((state) => state.invalidate)
+  const fetchBalance = useBalanceStore((state) => state.fetchBalance)
   useEffect(() => {
     if (sessionList.length > 0) {
       let _session = null
@@ -358,10 +359,17 @@ const ChatInterface = ({
       scrollToBottom()
       // 聊天输出完毕后更新余额
       if (authStatus.is_logged_in) {
-        queryClient.invalidateQueries({ queryKey: ['balance'] })
+        invalidateBalance()
+        fetchBalance({ force: true })
       }
     },
-    [sessionId, scrollToBottom, authStatus.is_logged_in, queryClient]
+    [
+      sessionId,
+      scrollToBottom,
+      authStatus.is_logged_in,
+      invalidateBalance,
+      fetchBalance
+    ]
   )
   const handleError = useCallback((data) => {
     setPending(false)

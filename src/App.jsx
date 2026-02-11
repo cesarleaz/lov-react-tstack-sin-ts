@@ -6,10 +6,6 @@ import { ThemeProvider } from '@/components/theme/ThemeProvider'
 import { ConfigsProvider } from '@/contexts/configs'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { useTheme } from '@/hooks/use-theme'
-import { QueryClient } from '@tanstack/react-query'
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
-import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
-import { openDB } from 'idb'
 import { Route, Switch } from 'wouter'
 import { useEffect } from 'react'
 import { Toaster } from 'sonner'
@@ -20,41 +16,6 @@ import Asset from './routes/assets'
 import { Knowledge } from './routes/knowledge'
 import Canvas from './routes/canvas.$id'
 import Home from './routes'
-// 创建 IndexedDB 连接
-const getDB = () =>
-  openDB('react-query-db', 1, {
-    upgrade(db) {
-      if (!db.objectStoreNames.contains('cache')) {
-        db.createObjectStore('cache')
-      }
-    }
-  })
-// 创建 IndexedDB 持久化器
-const persister = createAsyncStoragePersister({
-  storage: {
-    getItem: async (key) => {
-      const db = await getDB()
-      return (await db.get('cache', key)) || null
-    },
-    setItem: async (key, value) => {
-      const db = await getDB()
-      await db.put('cache', value, key)
-    },
-    removeItem: async (key) => {
-      const db = await getDB()
-      await db.delete('cache', key)
-    }
-  },
-  key: 'react-query-cache'
-})
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000,
-      gcTime: 10 * 60 * 1000
-    }
-  }
-})
 function App() {
   const { theme } = useTheme()
   // Auto-start ComfyUI on app startup
@@ -86,10 +47,6 @@ function App() {
   }, [])
   return (
     <ThemeProvider defaultTheme={theme} storageKey="vite-ui-theme">
-      <PersistQueryClientProvider
-        client={queryClient}
-        persistOptions={{ persister }}
-      >
         <AuthProvider>
           <ConfigsProvider>
             <div className="app-container">
@@ -115,7 +72,6 @@ function App() {
             </div>
           </ConfigsProvider>
         </AuthProvider>
-      </PersistQueryClientProvider>
       <Toaster position="bottom-center" richColors />
     </ThemeProvider>
   )
