@@ -1,7 +1,6 @@
-import { listModels } from '@/api/model'
 import useConfigsStore from '@/stores/configs'
-import { useQuery } from '@tanstack/react-query'
-import { createContext, useContext, useEffect, useRef } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef } from 'react'
+import useModelsStore from '@/stores/server/models'
 export const ConfigsContext = createContext(null)
 export const ConfigsProvider = ({ children }) => {
   const configsStore = useConfigsStore()
@@ -14,15 +13,28 @@ export const ConfigsProvider = ({ children }) => {
   } = configsStore
   // 存储上一次的 allTools 值，用于检测新添加的工具，并自动选中
   const previousAllToolsRef = useRef([])
-  const { data: modelList, refetch: refreshModels } = useQuery({
-    queryKey: ['list_models_2'],
-    queryFn: () => listModels(),
-    staleTime: 1000, // 5分钟内数据被认为是新鲜的
-    placeholderData: (previousData) => previousData, // 关键：显示旧数据同时获取新数据
-    refetchOnWindowFocus: true, // 窗口获得焦点时重新获取
-    refetchOnReconnect: true, // 网络重连时重新获取
-    refetchOnMount: true // 挂载时重新获取
-  })
+  const modelList = useModelsStore((state) => state.data)
+  const fetchModels = useModelsStore((state) => state.fetchModels)
+
+  const refreshModels = useCallback(
+    async (force = false) => fetchModels({ force }),
+    [fetchModels]
+  )
+
+  useEffect(() => {
+    refreshModels()
+
+    const onFocus = () => refreshModels()
+    const onOnline = () => refreshModels()
+
+    window.addEventListener('focus', onFocus)
+    window.addEventListener('online', onOnline)
+
+    return () => {
+      window.removeEventListener('focus', onFocus)
+      window.removeEventListener('online', onOnline)
+    }
+  }, [refreshModels])
   useEffect(() => {
     if (!modelList) return
     const { llm: llmModels = [], tools: toolList = [] } = modelList
