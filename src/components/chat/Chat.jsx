@@ -631,24 +631,10 @@ const ChatInterface = ({
               )}
             </div>
           ) : (
-            <motion.div className="flex flex-col h-full p-4 items-start justify-start pt-16 select-none">
-              <motion.span
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="text-muted-foreground text-3xl"
-              >
-                <ShinyText text="Hello, Jaaz!" />
-              </motion.span>
-              <motion.span
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="text-muted-foreground text-2xl"
-              >
-                <ShinyText text="How can I help you today?" />
-              </motion.span>
-            </motion.div>
+            <div className="flex flex-col h-full p-4 items-start justify-start pt-16 select-none">
+              <h1>Hello, Jaaz!</h1>
+              <strong>How can I help you today?</strong>
+            </div>
           )}
         </ScrollArea>
 
