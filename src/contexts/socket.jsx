@@ -1,43 +1,50 @@
 import { SocketIOManager } from '@/lib/socket'
 import React, { createContext, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+
 const SocketContext = createContext({
   connected: false,
   connecting: false,
   socketManager: null
 })
+
 export const SocketProvider = ({ children }) => {
   const { t } = useTranslation()
   const [connected, setConnected] = useState(false)
   const [socketId, setSocketId] = useState()
   const [connecting, setConnecting] = useState(true)
   const [error, setError] = useState()
+
   // Use useRef to maintain socket manager instance across re-renders
   const socketManagerRef = useRef(null)
+
   useEffect(() => {
     let mounted = true
+
     const initializeSocket = async () => {
       try {
         setConnecting(true)
         setError(undefined)
+
         // Create socket manager instance if not exists
         if (!socketManagerRef.current) {
           socketManagerRef.current = new SocketIOManager({
-            serverUrl:
-              process.env.NODE_ENV === 'development'
-                ? 'http://localhost:57988'
-                : window.location.origin,
+            serverUrl: window.location.origin,
             autoConnect: false
           })
         }
+
         const socketManager = socketManagerRef.current
         await socketManager.connect()
+
         if (mounted) {
           setConnected(true)
           setSocketId(socketManager.getSocketId())
           setConnecting(false)
+
           console.log('🚀 Socket.IO initialized successfully')
           const socket = socketManager.getSocket()
+
           if (socket) {
             const handleConnect = () => {
               if (mounted) {
@@ -47,6 +54,7 @@ export const SocketProvider = ({ children }) => {
                 setError(undefined)
               }
             }
+            
             const handleDisconnect = () => {
               if (mounted) {
                 setConnected(false)
@@ -54,6 +62,7 @@ export const SocketProvider = ({ children }) => {
                 setConnecting(false)
               }
             }
+
             const handleConnectError = (error) => {
               if (mounted) {
                 setError(error.message || '❌ Socket.IO Connection Error')
@@ -61,9 +70,11 @@ export const SocketProvider = ({ children }) => {
                 setConnecting(false)
               }
             }
+
             socket.on('connect', handleConnect)
             socket.on('disconnect', handleDisconnect)
             socket.on('connect_error', handleConnectError)
+
             return () => {
               socket.off('connect', handleConnect)
               socket.off('disconnect', handleDisconnect)
@@ -80,9 +91,12 @@ export const SocketProvider = ({ children }) => {
         }
       }
     }
+
     initializeSocket()
+
     return () => {
       mounted = false
+
       // Clean up socket connection when component unmounts
       if (socketManagerRef.current) {
         socketManagerRef.current.disconnect()
@@ -90,9 +104,11 @@ export const SocketProvider = ({ children }) => {
       }
     }
   }, [])
+
   useEffect(() => {
     console.log('📢 Notification manager initialized')
   }, [])
+
   const value = {
     connected,
     socketId,
@@ -100,6 +116,7 @@ export const SocketProvider = ({ children }) => {
     error,
     socketManager: socketManagerRef.current
   }
+
   return (
     <SocketContext.Provider value={value}>
       {children}
