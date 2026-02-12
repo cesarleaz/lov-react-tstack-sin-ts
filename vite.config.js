@@ -17,15 +17,18 @@ export default defineConfig({
     port: 5174,
     proxy: {
       '/api': {
-        target: `http://127.0.0.1:${PORT}`,
+        target: `http://localhost:${PORT}`,
         changeOrigin: true
         // Uncomment the following if you want to remove the /api prefix when forwarding to Flask
         // rewrite: (path) => path.replace(/^\/api/, '')
       },
       // Also proxy WebSocket connections
-      '/ws': {
-        target: `ws://127.0.0.1:${PORT}`,
-        ws: true
+      '/socket.io': {
+        target: `ws://localhost:${PORT}`,
+        changeOrigin: true,
+        // target: `ws://localhost:${PORT}`,
+        // ws: true,
+        // rewriteWsOrigin: true,
       }
     }
   }

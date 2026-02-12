@@ -30,7 +30,7 @@ export default function App() {
               <Route path="/agent_studio" component={AgentStudio} />
               <Route path="/assets" component={Asset} />
               <Route path="/knowledge" component={Knowledge} />
-              <Route path="/canvas/:id" component={Canvas} />
+              <Route path="/canvas" component={Canvas} />
             </Switch>
 
             {/* Install ComfyUI Dialog */}

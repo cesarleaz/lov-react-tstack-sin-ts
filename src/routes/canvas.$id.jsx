@@ -16,16 +16,18 @@ import { Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 export default function Canvas() {
-  const { id } = useParams()
   const [canvas, setCanvas] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
   const [canvasName, setCanvasName] = useState('')
   const [sessionList, setSessionList] = useState([])
+
   // initialVideos removed - using native Excalidraw embeddable elements instead
   const [searchParams] = useSearchParams()
   const search = searchParams.get('id')
+  const id = searchParams.get('projectId')
   const searchSessionId = search?.sessionId || ''
+  
   useEffect(() => {
     let mounted = true
     const fetchCanvas = async () => {
