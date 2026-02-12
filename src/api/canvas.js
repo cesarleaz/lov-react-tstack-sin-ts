@@ -2,14 +2,17 @@ export async function listCanvases() {
   const response = await fetch('/api/canvas/list')
   return await response.json()
 }
+
 export async function createCanvas(data) {
   const response = await fetch('/api/canvas/create', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   })
+  if (!response.ok) throw new Error(`Failed to create`)
   return await response.json()
 }
+
 export async function getCanvas(id) {
   const response = await fetch(`/api/canvas/${id}`)
   return await response.json()
